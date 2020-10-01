@@ -1,8 +1,12 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
 
 import { TextField } from "../components/Form";
 import { Button } from "../components/Button";
+
+import { geoFetch } from 'geocache/App/util/api';
 
 class CreateCache extends React.Component {
   state = {
@@ -14,11 +18,43 @@ class CreateCache extends React.Component {
   };
 
   onCurrentLocationPress = () => {
-    alert("todo!");
+    Permissions.askAsync(Permissions.LOCATION)
+      .then(({ status }) => {
+        if (status !== 'granted') throw new Error('Permission to access location was denied');
+
+        return Location.getCurrentPositionAsync();
+      })
+      .then(position => {
+        console.log('curr position ', position);
+        this.setState({
+          latitude: position.coords.latitude.toString(),
+          longitude: position.coords.longitude.toString(),
+        })
+    })
   };
 
   onSavePress = () => {
-    alert("todo!");
+    const { title, description, latitude, longitude } = this.state;
+    this.setState({ loading: true }, () => {
+      geoFetch(`/geocache`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title, description, latitude, longitude })
+        })
+        .then(() => {
+          this.props.navigation.popToTop();
+        })
+        .catch(e => {
+          console.log('create cache error ', e);
+        })
+        .finally(() => {
+          this.setState({ loading: false });
+        });
+    });
+    
   };
 
   render() {

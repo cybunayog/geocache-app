@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.67:3000';
+const BASE_URL = 'http://192.168.1.65:3000';
 
 export const geoFetch = (path, options = {}) => {
     return fetch(`${BASE_URL}/api${path}`, options)
@@ -6,5 +6,11 @@ export const geoFetch = (path, options = {}) => {
             if (res.ok) return res.json();
 
             throw new Error('Something went wrong... please try again.');
-        });
+        })
+        .catch(e => {
+            // Log to sentry
+            console.warn('ERROR: ', `${BASE_URL}/api${path}`, e);
+
+            throw new Error(e);
+        })
 }
