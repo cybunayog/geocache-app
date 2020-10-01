@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.65:3000';
+const BASE_URL = 'http://localhost:3000';
 
 export const geoFetch = (path, options = {}) => {
     return fetch(`${BASE_URL}/api${path}`, options)
